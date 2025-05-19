@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Restucode.Migrations
 {
     /// <inheritdoc />
-    public partial class tbl_Categories : Migration
+    public partial class initial_tables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -35,5 +35,35 @@ namespace Restucode.Controllers
             await RestucodeContext.SaveChangesAsync();
             return CreatedAtAction(nameof(List), new { id = entity.Id }, model);
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(long id)
+        {
+            var category = await RestucodeContext.Categories.FindAsync(id);
+            if (category == null)
+                return NotFound();
+
+            var model = mapper.Map<CategoryEditModel>(category);
+            return Ok(model);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Edit(long id, [FromForm] CategoryEditModel model)
+        {
+            var category = await RestucodeContext.Categories.FindAsync(id);
+            if (category == null)
+                return NotFound();
+
+            mapper.Map(model, category);
+
+            if (model.Image != null)
+            {
+                category.Image = await imageService.SaveImageAsync(model.Image);
+            }
+
+            await RestucodeContext.SaveChangesAsync();
+            return NoContent();
+        }
+
     }
 }

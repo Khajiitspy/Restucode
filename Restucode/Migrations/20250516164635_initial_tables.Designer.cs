@@ -12,8 +12,8 @@ using Restucode.Data;
 namespace Restucode.Migrations
 {
     [DbContext(typeof(RestucodeDBContext))]
-    [Migration("20250513165839_tbl_Categories")]
-    partial class tbl_Categories
+    [Migration("20250516164635_initial_tables")]
+    partial class initial_tables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
