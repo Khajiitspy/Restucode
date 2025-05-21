@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Restucode.Data;
 using Restucode.Data.Entities;
 using Restucode.Models.Category;
+using FluentValidation;
 
 namespace Restucode.Controllers
 {
@@ -26,13 +27,15 @@ namespace Restucode.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return ValidationProblem(ModelState);
             }
+
             var entity = mapper.Map<CategoryEntity>(model);
             entity.Image = await imageService.SaveImageAsync(model.Image);
 
             RestucodeContext.Categories.Add(entity);
             await RestucodeContext.SaveChangesAsync();
+
             return CreatedAtAction(nameof(List), new { id = entity.Id }, model);
         }
 
