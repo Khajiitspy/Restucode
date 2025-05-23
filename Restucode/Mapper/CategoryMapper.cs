@@ -16,8 +16,10 @@ namespace Restucode.Mapper
             var slugHelper = new SlugHelper();
 
             CreateMap<CategoryAddModel, CategoryEntity>()
+                .ForMember(dest=> dest.Name, opt=> opt.MapFrom(src=> src.Name.Trim()))
                 .ForMember(dest => dest.Slug, opt => opt.MapFrom(src => slugHelper.GenerateSlug(src.Name)));
             CreateMap<CategoryEditModel, CategoryEntity>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Trim()))
                 .ForMember(dest => dest.Slug, opt => opt.MapFrom(src => slugHelper.GenerateSlug(src.Name)))
                 .ForMember(dest => dest.Image, opt => opt.Ignore());
             CreateMap<CategoryEntity, CategoryEditModel>()

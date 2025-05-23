@@ -46,7 +46,7 @@ namespace Restucode.Controllers
             if (category == null)
                 return NotFound();
 
-            var model = mapper.Map<CategoryEditModel>(category);
+            var model = mapper.Map<CategoryItemViewModel>(category);
             return Ok(model);
         }
 
@@ -65,6 +65,19 @@ namespace Restucode.Controllers
             }
 
             await RestucodeContext.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(long id)
+        {
+            var category = await RestucodeContext.Categories.FindAsync(id);
+            if (category == null)
+                return NotFound();
+
+            RestucodeContext.Categories.Remove(category);
+            await RestucodeContext.SaveChangesAsync();
+
             return NoContent();
         }
 
