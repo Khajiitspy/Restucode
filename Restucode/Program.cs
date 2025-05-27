@@ -1,8 +1,10 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Restucode.Data;
+using Restucode.Data.Entities.Identity;
 using Restucode.Filters;
 using Restucode.Interface;
 using Restucode.Services;
@@ -14,7 +16,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<RestucodeDBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("MyConnection")));
 
+builder.Services.AddIdentity<UserEntity, RoleEntity>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+    options.Password.RequiredLength = 6;
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+}).AddEntityFrameworkStores<RestucodeDBContext>()
+    .AddDefaultTokenProviders();
+
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
 builder.Services.AddControllers();
 
@@ -32,8 +46,14 @@ builder.Services.AddMvc(options =>
     options.Filters.Add<ValidationFilter>();
 });
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+var assemblyName = typeof(Program).Assembly.GetName().Name;
+
+builder.Services.AddSwaggerGen(opt =>
+{
+    var fileDoc = $"{assemblyName}.xml";
+    var filePath = Path.Combine(AppContext.BaseDirectory, fileDoc);
+    opt.IncludeXmlComments(filePath);
+});
 
 builder.Services.AddCors();
 
@@ -41,11 +61,8 @@ var app = builder.Build();
 
 app.UseCors(x => x.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // Configure the HTTP request pipeline.
 

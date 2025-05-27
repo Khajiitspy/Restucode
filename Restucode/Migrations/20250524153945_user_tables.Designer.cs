@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Restucode.Data;
@@ -11,9 +12,11 @@ using Restucode.Data;
 namespace Restucode.Migrations
 {
     [DbContext(typeof(RestucodeDBContext))]
-    partial class RestucodeDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250524153945_user_tables")]
+    partial class user_tables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
