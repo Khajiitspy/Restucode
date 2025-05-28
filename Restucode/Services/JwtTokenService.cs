@@ -17,7 +17,7 @@ namespace Restucode.Services
             {
                 new Claim("email", user.Email),
                 new Claim("name", $"{user.LastName} {user.FirstName}"),
-
+                new Claim("image", user.Image)
             };
 
             foreach (var role in await userManager.GetRolesAsync(user))

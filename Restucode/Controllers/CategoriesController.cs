@@ -6,6 +6,8 @@ using Restucode.Data;
 using Restucode.Data.Entities;
 using Restucode.Models.Category;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
+using Restucode.Constants;
 
 namespace Restucode.Controllers
 {
@@ -39,6 +41,7 @@ namespace Restucode.Controllers
             return CreatedAtAction(nameof(List), new { id = entity.Id }, model);
         }
 
+        [Authorize(Roles = $"{Roles.Admin}")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(long id)
         {

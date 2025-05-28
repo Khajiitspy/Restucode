@@ -1,17 +1,34 @@
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-using Restucode.Data;
+using Microsoft.AspNetCore.Identity;
+using Restucode.Data.Entities.Identity;
 using Restucode.Models.Account;
-using System.Threading;
+
+namespace Restucode.Validators.Account;
 
 public class AccountLoginValidator : AbstractValidator<LoginModel>
 {
-    public AccountLoginValidator(RestucodeDBContext db)
+    public AccountLoginValidator(UserManager<UserEntity> userManager)
     {
         RuleFor(x => x.Email)
-            .Must(email => !string.IsNullOrEmpty(email)).WithMessage("Email є обов'язковою");
+            .NotEmpty().WithMessage("Електронна пошта є обов'язковою")
+            .EmailAddress().WithMessage("Некоректний формат електронної пошти")
+            .MustAsync(async (email, cancellation) =>
+            {
+                var user = await userManager.FindByEmailAsync(email);
+                return user != null;
+            }).WithMessage("Користувача з такою поштою не знайдено");
 
         RuleFor(x => x.Password)
-            .Must(password => !string.IsNullOrEmpty(password)).WithMessage("Password є обов'язковою");
+            .NotEmpty().WithMessage("Пароль є обов'язковим")
+            .MinimumLength(6).WithMessage("Пароль повинен містити щонайменше 6 символів");
+
+        RuleFor(x => x)
+            .MustAsync(async (model, cancellation) =>
+            {
+                var user = await userManager.FindByEmailAsync(model.Email);
+                if (user == null) return false;
+                return await userManager.CheckPasswordAsync(user, model.Password);
+            })
+            .WithMessage("Невірний email або пароль");
     }
 }

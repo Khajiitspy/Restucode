@@ -1,31 +1,57 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Restucode.Data;
 using Restucode.Data.Entities.Identity;
 using Restucode.Filters;
 using Restucode.Interface;
 using Restucode.Services;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddDbContext<RestucodeDBContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("MyConnection")));
+builder.Services.AddDbContext<RestucodeDBContext>(opt =>
+    opt.UseNpgsql(builder.Configuration.GetConnectionString("MyConnection")));
 
 builder.Services.AddIdentity<UserEntity, RoleEntity>(options =>
 {
-    options.User.RequireUniqueEmail = true;
-    options.Password.RequiredLength = 6;
     options.Password.RequireDigit = false;
     options.Password.RequireLowercase = false;
     options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = false;
-}).AddEntityFrameworkStores<RestucodeDBContext>()
+})
+    .AddEntityFrameworkStores<RestucodeDBContext>()
     .AddDefaultTokenProviders();
+
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
+});
 
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
@@ -34,12 +60,18 @@ builder.Services.AddControllers();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+// Вимикаємо автоматичну валідацію через ModelState
+
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true;
 });
 
+// Додаємо валідацію через FluentValidation
+//Шукаємо усі можливі валідатори
 builder.Services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
+
+//builder.Services.AddValidatorsFromAssemblyContaining<CategoryCreateValidator>();
 
 builder.Services.AddMvc(options =>
 {
@@ -53,7 +85,33 @@ builder.Services.AddSwaggerGen(opt =>
     var fileDoc = $"{assemblyName}.xml";
     var filePath = Path.Combine(AppContext.BaseDirectory, fileDoc);
     opt.IncludeXmlComments(filePath);
+
+    opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme.",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer"
+    });
+
+    opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            new string[]{}
+        }
+    });
+
 });
+
 
 builder.Services.AddCors();
 
