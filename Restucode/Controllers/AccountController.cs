@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Restucode.Data.Entities.Identity;
-using Restucode.Interface;
-using Restucode.Models.Account;
+using Domain.Entities.Identity;
+using Core.Interface;
+using Core.Models.Account;
 using System.Security.Claims;
 using Restucode.Constants;
 namespace Restucode.Controllers

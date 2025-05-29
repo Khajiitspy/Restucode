@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using Restucode.Interface;
+using Core.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Restucode.Data;
-using Restucode.Data.Entities;
-using Restucode.Models.Category;
+using Domain;
+using Domain.Entities;
+using Core.Models.Category;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Restucode.Constants;

@@ -6,11 +6,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Restucode.Data;
-using Restucode.Data.Entities.Identity;
+using Restucode;
+using Domain;
+using Domain.Entities.Identity;
 using Restucode.Filters;
-using Restucode.Interface;
-using Restucode.Services;
+using Core.Interface;
+using Core.Services;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
