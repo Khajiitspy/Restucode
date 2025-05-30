@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+
 namespace Core.Models.Account
 {
 	public class RegisterModel

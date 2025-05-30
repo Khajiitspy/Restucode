@@ -13,75 +13,45 @@ namespace Restucode.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController(RestucodeDBContext RestucodeContext,
-        IMapper mapper, IImageService imageService) : ControllerBase
+    public class CategoriesController(ICategoryService categoryService) : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> List()
+        public async Task<IActionResult> List([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
         {
-            var model = await mapper.ProjectTo<CategoryItemViewModel>(RestucodeContext.Categories)
-                .ToListAsync();
+            var model = await categoryService.ListAsync(page, pageSize, search);
             return Ok(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] CategoryAddModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return ValidationProblem(ModelState);
-            }
 
-            var entity = mapper.Map<CategoryEntity>(model);
-            entity.Image = await imageService.SaveImageAsync(model.Image);
+            var category = await categoryService.Create(model);
 
-            RestucodeContext.Categories.Add(entity);
-            await RestucodeContext.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(List), new { id = entity.Id }, model);
+            return Ok(category);
         }
 
         [Authorize(Roles = $"{Roles.Admin}")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(long id)
         {
-            var category = await RestucodeContext.Categories.FindAsync(id);
-            if (category == null)
-                return NotFound();
 
-            var model = mapper.Map<CategoryItemViewModel>(category);
+            var model = await categoryService.GetItemById((int)id);
             return Ok(model);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Edit(long id, [FromForm] CategoryEditModel model)
         {
-            var category = await RestucodeContext.Categories.FindAsync(id);
-            if (category == null)
-                return NotFound();
-
-            mapper.Map(model, category);
-
-            if (model.Image != null)
-            {
-                category.Image = await imageService.SaveImageAsync(model.Image);
-            }
-
-            await RestucodeContext.SaveChangesAsync();
-            return NoContent();
+            var category = await categoryService.Edit(model);
+            return Ok(category);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(long id)
         {
-            var category = await RestucodeContext.Categories.FindAsync(id);
-            if (category == null)
-                return NotFound();
-
-            RestucodeContext.Categories.Remove(category);
-            await RestucodeContext.SaveChangesAsync();
-
-            return NoContent();
+            var category = await categoryService.Delete(id);
+            return Ok(category);
         }
 
     }
