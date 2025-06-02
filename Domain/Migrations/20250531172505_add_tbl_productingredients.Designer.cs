@@ -3,6 +3,7 @@ using System;
 using Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Domain.Migrations
 {
     [DbContext(typeof(RestucodeDBContext))]
-    partial class RestucodeDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250531172505_add_tbl_productingredients")]
+    partial class add_tbl_productingredients
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -187,7 +190,7 @@ namespace Domain.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("tblIngredients");
+                    b.ToTable("Ingredients");
                 });
 
             modelBuilder.Entity("Domain.Entities.ProductEntity", b =>
@@ -233,38 +236,6 @@ namespace Domain.Migrations
                     b.HasIndex("ProductSizeId");
 
                     b.ToTable("tblProducts");
-                });
-
-            modelBuilder.Entity("Domain.Entities.ProductImageEntity", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)");
-
-                    b.Property<short>("Priority")
-                        .HasColumnType("smallint");
-
-                    b.Property<long>("ProductId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("tblProductImages");
                 });
 
             modelBuilder.Entity("Domain.Entities.ProductIngredientEntity", b =>
@@ -442,17 +413,6 @@ namespace Domain.Migrations
                     b.Navigation("ProductSize");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ProductImageEntity", b =>
-                {
-                    b.HasOne("Domain.Entities.ProductEntity", "Product")
-                        .WithMany("ProductImages")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("Domain.Entities.ProductIngredientEntity", b =>
                 {
                     b.HasOne("Domain.Entities.IngredientEntity", "Ingredient")
@@ -549,8 +509,6 @@ namespace Domain.Migrations
 
             modelBuilder.Entity("Domain.Entities.ProductEntity", b =>
                 {
-                    b.Navigation("ProductImages");
-
                     b.Navigation("ProductIngredients");
                 });
 

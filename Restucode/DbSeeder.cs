@@ -8,6 +8,7 @@ using Domain.Entities;
 using Domain.Entities.Identity;
 using Core.Interface;
 using Core.Models.Seeder;
+using Core.Services;
 
 namespace Restucode;
 
@@ -113,6 +114,113 @@ public static class DbSeeder
             {
                 Console.WriteLine("Not Found File Users.json");
             }
+        }
+
+        if (!context.Ingredients.Any())
+        {
+            var imageService = scope.ServiceProvider.GetRequiredService<IImageService>();
+            var jsonFile = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "JsonData", "Ingredients.json");
+            if (File.Exists(jsonFile))
+            {
+                var jsonData = await File.ReadAllTextAsync(jsonFile);
+                try
+                {
+                    var Ingredients = JsonSerializer.Deserialize<List<SeederIngredientModel>>(jsonData);
+                    var entityItems = mapper.Map<List<IngredientEntity>>(Ingredients);
+                    foreach (var entity in entityItems)
+                    {
+                        entity.Image =
+                            await imageService.SaveImageFromUrlAsync(entity.Image);
+                    }
+
+                    await context.AddRangeAsync(entityItems);
+                    await context.SaveChangesAsync();
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error Json Parse Data {0}", ex.Message);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Not Found File Ingredients.json");
+            }
+        }
+
+        if (!context.ProductSizes.Any())
+        {
+            var jsonFile = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "JsonData", "ProductSizes.json");
+            if (File.Exists(jsonFile))
+            {
+                var jsonData = await File.ReadAllTextAsync(jsonFile);
+                try
+                {
+                    var items = JsonSerializer.Deserialize<List<SeederProductSizeModel>>(jsonData);
+                    var entityItems = mapper.Map<List<ProductSizeEntity>>(items);
+                    await context.ProductSizes.AddRangeAsync(entityItems);
+                    await context.SaveChangesAsync();
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error Json Parse Data {0}", ex.Message);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Not Found File ProductSizes.json");
+            }
+        }
+
+        if (!context.Products.Any())
+        {
+            var imageService = scope.ServiceProvider.GetRequiredService<IImageService>();
+
+            var сaesar = new ProductEntity
+            {
+                Name = "Цезаре",
+                Slug = "caesar",
+                Price = 195,
+                Weight = 540,
+                CategoryId = 1, 
+                ProductSizeId = 1
+            };
+
+            context.Products.Add(сaesar);
+            await context.SaveChangesAsync();
+
+            var ingredients = context.Ingredients.ToList();
+
+            foreach (var ingredient in ingredients)
+            {
+                var productIngredient = new ProductIngredientEntity
+                {
+                    ProductId = сaesar.Id,
+                    IngredientId = ingredient.Id
+                };
+                context.ProductIngredients.Add(productIngredient);
+            }
+            await context.SaveChangesAsync();
+
+            string[] images = {
+                "https://matsuri.com.ua/img_files/gallery_commerce/products/big/commerce_products_images_51.webp?47d1e990583c9c67424d369f3414728e",
+                "https://cdn.lifehacker.ru/wp-content/uploads/2022/03/11187_1522960128.7729_1646727034-1170x585.jpg",
+            };
+
+            foreach (var imageUrl in images)
+            {
+                var p = 0;
+                var productImage = new ProductImageEntity
+                {
+                    ProductId = сaesar.Id,
+                    Name = await imageService.SaveImageFromUrlAsync(imageUrl),
+                    Priority = short.Parse($"{p+1}")
+                };
+                context.ProductImages.Add(productImage);
+            }
+            await context.SaveChangesAsync();
+
         }
     }
 }
