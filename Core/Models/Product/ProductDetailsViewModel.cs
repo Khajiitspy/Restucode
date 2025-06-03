@@ -17,7 +17,7 @@ namespace Core.Models.Product
         public string Category { get; set; } = string.Empty;
         public string? Size { get; set; }
 
-        public List<string> Ingredients { get; set; } = new();
+        public List<IngredientModel> Ingredients { get; set; } = new();
         public List<string> Images { get; set; } = new();
     }
 }

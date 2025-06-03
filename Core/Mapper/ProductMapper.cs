@@ -19,7 +19,10 @@ namespace Core.Mapper
                 .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category!.Name))
                 .ForMember(dest => dest.Size, opt => opt.MapFrom(src => src.ProductSize != null ? src.ProductSize.Name : null))
                 .ForMember(dest => dest.Ingredients, opt => opt.MapFrom(src => src.ProductIngredients!
-                    .Select(pi => pi.Ingredient!.Name).ToList()))
+                    .Select(pi => new IngredientModel() { 
+                        Name = pi.Ingredient!.Name,
+                        ImageUrl = pi.Ingredient.Image
+                    }).ToList()))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.ProductImages!
                     .OrderBy(pi => pi.Priority)
                     .Select(pi => pi.Name)
