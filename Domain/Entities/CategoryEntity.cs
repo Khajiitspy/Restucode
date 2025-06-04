@@ -14,6 +14,6 @@ namespace Domain.Entities
         [StringLength(200)]
         public string Slug { get; set; } = string.Empty;
 
-        public ICollection<ProductEntity>? Products { get; set; } = new List<ProductEntity>();
+        public ICollection<ProductVariantEntity>? Products { get; set; } = new List<ProductVariantEntity>();
     }
 }

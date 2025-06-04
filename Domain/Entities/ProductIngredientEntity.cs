@@ -7,12 +7,14 @@ namespace Domain.Entities
     [Table("tblProductIngredients")]
     public class ProductIngredientEntity
     {
-        [ForeignKey("Product")]
-        public long ProductId { get; set; }
+        [ForeignKey("ProductVariant")]
+        public long ProductVariantId { get; set; }
+
         [ForeignKey("Ingredient")]
         public long IngredientId { get; set; }
 
-        public virtual ProductEntity? Product { get; set; }
+        public virtual ProductVariantEntity? ProductVariant { get; set; }
         public virtual IngredientEntity? Ingredient { get; set; }
     }
+
 }

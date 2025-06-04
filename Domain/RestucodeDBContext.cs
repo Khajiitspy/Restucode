@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Domain.Entities.Identity;
 using Domain.Entities;
+using System.Reflection.Emit;
 
 namespace Domain;
 
@@ -14,6 +15,7 @@ public class RestucodeDBContext : IdentityDbContext<UserEntity, RoleEntity, long
     public DbSet<IngredientEntity> Ingredients { get; set; }
     public DbSet<ProductSizeEntity> ProductSizes { get; set; }
     public DbSet<ProductEntity> Products { get; set; }
+    public DbSet<ProductVariantEntity> ProductVariants { get; set; }
     public DbSet<ProductIngredientEntity> ProductIngredients { get; set; }
     public DbSet<ProductImageEntity> ProductImages { get; set; }
 
@@ -33,7 +35,13 @@ public class RestucodeDBContext : IdentityDbContext<UserEntity, RoleEntity, long
                 .IsRequired();
         });
 
+        builder.Entity<ProductVariantEntity>()
+            .HasMany(pv => pv.ProductImages)
+            .WithOne(pi => pi.ProductVariant)
+            .HasForeignKey(pi => pi.ProductVariantId);
+
+
         builder.Entity<ProductIngredientEntity>()
-            .HasKey(pi => new { pi.ProductId, pi.IngredientId });
+            .HasKey(pi => new { pi.ProductVariantId, pi.IngredientId });
     }
 }

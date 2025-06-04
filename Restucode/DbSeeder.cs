@@ -179,16 +179,23 @@ public static class DbSeeder
 
             var сaesar = new ProductEntity
             {
-                Name = "Цезаре",
+                ProductVariants = new List<ProductVariantEntity>()
+                {
+                    new ProductVariantEntity() {
+                        Name = "Цезаре",
+                        Price = 195,
+                        Weight = 540,
+                        CategoryId = 1,
+                        ProductSizeId = 1
+                    }
+                },
                 Slug = "caesar",
-                Price = 195,
-                Weight = 540,
-                CategoryId = 1, 
-                ProductSizeId = 1
             };
 
             context.Products.Add(сaesar);
             await context.SaveChangesAsync();
+
+            var variant = сaesar.ProductVariants.First();
 
             var ingredients = context.Ingredients.ToList();
 
@@ -196,7 +203,7 @@ public static class DbSeeder
             {
                 var productIngredient = new ProductIngredientEntity
                 {
-                    ProductId = сaesar.Id,
+                    ProductVariantId = variant.Id,
                     IngredientId = ingredient.Id
                 };
                 context.ProductIngredients.Add(productIngredient);
@@ -208,18 +215,19 @@ public static class DbSeeder
                 "https://cdn.lifehacker.ru/wp-content/uploads/2022/03/11187_1522960128.7729_1646727034-1170x585.jpg",
             };
 
+            int p = 0;
             foreach (var imageUrl in images)
             {
-                var p = 0;
                 var productImage = new ProductImageEntity
                 {
-                    ProductId = сaesar.Id,
+                    ProductVariantId = variant.Id,
                     Name = await imageService.SaveImageFromUrlAsync(imageUrl),
-                    Priority = short.Parse($"{p+1}")
+                    Priority = (short)(++p)
                 };
                 context.ProductImages.Add(productImage);
             }
             await context.SaveChangesAsync();
+
 
         }
     }

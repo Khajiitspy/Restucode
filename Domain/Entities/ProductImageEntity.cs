@@ -16,8 +16,8 @@ namespace Domain.Entities
 
         public short Priority { get; set; }
 
-        [ForeignKey("Product")]
-        public long ProductId { get; set; }
-        public ProductEntity? Product { get; set; }
+        [ForeignKey("ProductVariant")]
+        public long ProductVariantId { get; set; }
+        public ProductVariantEntity? ProductVariant { get; set; }
     }
 }

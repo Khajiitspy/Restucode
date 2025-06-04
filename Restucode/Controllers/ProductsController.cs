@@ -23,5 +23,13 @@ namespace Restucode.Controllers
             return Ok(model);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> CreateProduct([FromForm]ProductCreateModel model)
+        {
+            long id = await productService.CreateProduct(model);
+
+            return Ok(id);
+        }
+
     }
 }
