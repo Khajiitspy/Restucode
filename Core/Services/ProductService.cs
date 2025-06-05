@@ -104,7 +104,7 @@ namespace Core.Services
 
             await context.SaveChangesAsync();
 
-            for (int i = 0; i < model.IngredientNames.Count; i++)
+            for (int i = 0, im = 0; i < model.IngredientNames.Count; i++)
             {
                 var name = model.IngredientNames[i];
 
@@ -113,7 +113,8 @@ namespace Core.Services
 
                 if (ingredient == null)
                 {
-                    var imageFile = model.IngredientImages[i];
+                    var imageFile = model.IngredientImages[im];
+                    im++;
                     var savedImage = await imageService.SaveImageAsync(imageFile);
 
                     ingredient = new IngredientEntity
