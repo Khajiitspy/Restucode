@@ -17,5 +17,10 @@ namespace Core.Interface
         public Task<ProductDetailsViewModel> Details(long id);
 
         public Task<long> CreateProduct(ProductCreateModel model);
+
+        public Task<IEnumerable<IngredientModel>> GetIngredientsAsync();
+        public Task<IEnumerable<ProductSizeModel>> GetSizesAsync();
+
+        public Task<long> EditProduct(ProductEditModel model);
     }
 }

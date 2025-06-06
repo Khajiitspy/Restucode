@@ -45,7 +45,7 @@ namespace Core.Services
             return model;
         }
 
-        public async Task<PagedResult<CategoryItemViewModel>> ListAsync(int page, int pageSize, string? search)
+        public async Task<PagedResult<CategoryItemViewModel>> ListAsyncPaged(int page, int pageSize, string? search)
         {
             var query = context.Categories.AsQueryable();
 
@@ -68,6 +68,14 @@ namespace Core.Services
                 Page = page,
                 PageSize = pageSize
             };
+        }
+
+        public async Task<IEnumerable<CategoryItemViewModel>> ListAsync()
+        {
+            var query = context.Categories.AsQueryable();
+
+            return await mapper.ProjectTo<CategoryItemViewModel>(query)
+                .ToListAsync();
         }
 
 

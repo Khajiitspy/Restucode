@@ -3,6 +3,7 @@ using Domain.Entities;
 using Core.Models.Category;
 using Core.Models.Seeder;
 using Slugify;
+using Core.Models.Product;
 
 namespace Core.Mapper
 {
@@ -11,6 +12,7 @@ namespace Core.Mapper
         public ProductSizeMapper()
         {
             CreateMap<SeederProductSizeModel, ProductSizeEntity>();
+            CreateMap<ProductSizeEntity, ProductSizeModel>();
         }
     }
 }

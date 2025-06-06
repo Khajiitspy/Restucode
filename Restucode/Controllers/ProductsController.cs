@@ -9,7 +9,7 @@ namespace Restucode.Controllers
     [ApiController]
     public class ProductsController(IProductService productService): ControllerBase
     {
-        [HttpGet]
+        [HttpGet("list")]
         public async Task<IActionResult> List([FromQuery] string? search, int page = 1, int pageSize = 5)
         {
             var model = await productService.List(search, page, pageSize);
@@ -23,12 +23,41 @@ namespace Restucode.Controllers
             return Ok(model);
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> CreateProduct([FromForm]ProductCreateModel model)
         {
-            long id = await productService.CreateProduct(model);
+            var salo = Request.Form;
+            if (model.ImageFiles == null)
+                return BadRequest("Image files are empty!");
+            if (model.IngredientIds == null)
+                return BadRequest("Product ingredients are empty!");
+            var entity = await productService.CreateProduct(model);
+            if (entity != null)
+                return Ok(model);
+            else return BadRequest("Error create product!");
+        }
 
-            return Ok(id);
+        [HttpGet("sizes")]
+        public async Task<IActionResult> GetSizes()
+        {
+            var sizes = await productService.GetSizesAsync();
+
+            return Ok(sizes);
+        }
+
+        [HttpGet("ingredients")]
+        public async Task<IActionResult> GetIngredients()
+        {
+            var ingredients = await productService.GetIngredientsAsync();
+
+            return Ok(ingredients);
+        }
+
+        [HttpPut("edit")]
+        public async Task<IActionResult> Edit([FromForm] ProductEditModel model)
+        {
+            var updatedId = await productService.EditProduct(model);
+            return Ok(updatedId);
         }
 
     }

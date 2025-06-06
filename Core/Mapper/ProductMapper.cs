@@ -27,12 +27,10 @@ namespace Core.Mapper
                         .Select(pi => pi.Name)
                         .FirstOrDefault()));
 
-            // For product details page
             CreateMap<ProductEntity, ProductDetailsViewModel>()
                 .ForMember(dest => dest.Variants,
                     opt => opt.MapFrom(src => src.ProductVariants ?? new List<ProductVariantEntity>()));
 
-            // For each variant in the details view
             CreateMap<ProductVariantEntity, ProductVariant>()
                 .ForMember(dest => dest.Category,
                     opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))

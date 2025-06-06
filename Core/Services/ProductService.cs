@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Core.Interface;
 using Core.Models.Category;
 using Core.Models.General;
@@ -76,16 +77,13 @@ namespace Core.Services
                 .Include(p => p.ProductVariants)
                 .FirstOrDefaultAsync(p => p.Slug == model.Slug);
 
-            var categoryId = context.Categories.FirstOrDefault(c => c.Name == model.Category)?.Id ?? 0;
-            var sizeId = context.ProductSizes.FirstOrDefault(s => s.Name == model.Size)?.Id;
-
             var variant = new ProductVariantEntity
             {
                 Name = model.Name,
                 Price = model.Price,
                 Weight = model.Weight,
-                CategoryId = categoryId,
-                ProductSizeId = sizeId
+                CategoryId = model.CategoryId,
+                ProductSizeId = model.ProductSizeId
             };
 
             if (existing != null)
@@ -104,28 +102,12 @@ namespace Core.Services
 
             await context.SaveChangesAsync();
 
-            for (int i = 0, im = 0; i < model.IngredientNames.Count; i++)
+            for (int i = 0, im = 0; i < model.IngredientIds.Count; i++)
             {
-                var name = model.IngredientNames[i];
+                var id = model.IngredientIds[i];
 
                 var ingredient = await context.Ingredients
-                    .FirstOrDefaultAsync(i => i.Name == name);
-
-                if (ingredient == null)
-                {
-                    var imageFile = model.IngredientImages[im];
-                    im++;
-                    var savedImage = await imageService.SaveImageAsync(imageFile);
-
-                    ingredient = new IngredientEntity
-                    {
-                        Name = name,
-                        Image = savedImage
-                    };
-
-                    context.Ingredients.Add(ingredient);
-                    await context.SaveChangesAsync();
-                }
+                    .FirstOrDefaultAsync(i => i.Id == id);
 
                 context.ProductIngredients.Add(new ProductIngredientEntity
                 {
@@ -135,7 +117,7 @@ namespace Core.Services
             }
 
             short priority = 1;
-            foreach (var image in model.Images)
+            foreach (var image in model.ImageFiles)
             {
                 var savedImage = await imageService.SaveImageAsync(image);
 
@@ -150,6 +132,84 @@ namespace Core.Services
             await context.SaveChangesAsync();
 
             return existing.Id;
+        }
+
+        public async Task<IEnumerable<IngredientModel>> GetIngredientsAsync()
+        {
+            var ingredients = await context.Ingredients
+                .ProjectTo<IngredientModel>(mapper.ConfigurationProvider)
+                .ToListAsync();
+            return ingredients;
+        }
+
+        public async Task<IEnumerable<ProductSizeModel>> GetSizesAsync()
+        {
+            var sizes = await context.ProductSizes
+                .ProjectTo<ProductSizeModel>(mapper.ConfigurationProvider)
+                .ToListAsync();
+            return sizes;
+        }
+
+        public async Task<long> EditProduct(ProductEditModel model)
+        {
+            var variant = await context.ProductVariants
+                .Include(v => v.Product)
+                .Include(v => v.ProductIngredients)
+                .Include(v => v.ProductImages)
+                .FirstOrDefaultAsync(v => v.Id == model.VariantID);
+
+            if (variant == null)
+                throw new Exception("Product variant not found");
+
+            variant.Name = model.Name ?? variant.Name;
+            variant.Price = model.Price ?? variant.Price;
+            variant.Weight = model.Weight ?? variant.Weight;
+            variant.CategoryId = model.CategoryId ?? variant.CategoryId;
+            variant.ProductSizeId = model.ProductSizeId ?? variant.ProductSizeId;
+
+            if(model.IngredientIds != null)
+            {
+                var existingIngredients = context.ProductIngredients
+                    .Where(pi => pi.ProductVariantId == variant.Id);
+                context.ProductIngredients.RemoveRange(existingIngredients);
+
+                foreach (var ingredientId in model.IngredientIds ?? new List<long>())
+                {
+                    context.ProductIngredients.Add(new ProductIngredientEntity
+                    {
+                        ProductVariantId = variant.Id,
+                        IngredientId = ingredientId
+                    });
+                }
+            }
+
+            if (model.ImageFiles != null && model.ImageFiles?.Count > 0)
+            {
+                var oldImages = context.ProductImages
+                    .Where(img => img.ProductVariantId == variant.Id);
+                foreach (var item in oldImages)
+                {
+                    await imageService.DeleteImageAsync(item.Name);
+                }
+                context.ProductImages.RemoveRange(oldImages);
+
+                short priority = 1;
+                foreach (var image in model.ImageFiles)
+                {
+                    var savedImage = await imageService.SaveImageAsync(image);
+
+                    context.ProductImages.Add(new ProductImageEntity
+                    {
+                        ProductVariantId = variant.Id,
+                        Name = savedImage,
+                        Priority = priority++
+                    });
+                }
+            }
+
+            await context.SaveChangesAsync();
+
+            return variant.ProductId;
         }
 
     }

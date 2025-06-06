@@ -15,7 +15,8 @@ namespace Core.Interface
 
         public Task<CategoryItemViewModel> GetItemById(long Id);
 
-        public Task<PagedResult<CategoryItemViewModel>> ListAsync(int page, int pageSize, string? search);
+        public Task<PagedResult<CategoryItemViewModel>> ListAsyncPaged(int page, int pageSize, string? search);
+        public Task<IEnumerable<CategoryItemViewModel>> ListAsync();
 
         public Task<CategoryItemViewModel> Edit(CategoryEditModel model);
 

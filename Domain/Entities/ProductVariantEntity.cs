@@ -28,6 +28,11 @@ namespace Domain.Entities
 
         public ProductSizeEntity? ProductSize { get; set; } = null!;
 
+        [ForeignKey("Product")]
+        public long ProductId { get; set; }
+
+        public ProductEntity? Product { get; set; } = null!;
+
         public ICollection<ProductIngredientEntity>? ProductIngredients { get; set; }
 
         public ICollection<ProductImageEntity> ProductImages { get; set; } = new List<ProductImageEntity>();

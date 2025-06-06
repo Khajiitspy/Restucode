@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace Core.Models.Product
 {
-    public class ProductCreateModel
+    public class ProductEditModel
     {
-        public string Name { get; set; } = string.Empty;
-        public string Slug { get; set; } = string.Empty;
-        public decimal Price { get; set; }
-        public int Weight { get; set; }
-        public long CategoryId { get; set; }
-        public long ProductSizeId { get; set; }
+        public long VariantID { get; set; }
+        public string? Name { get; set; } = string.Empty;
+        public decimal? Price { get; set; }
+        public int? Weight { get; set; }
+        public long? CategoryId { get; set; }
+        public long? ProductSizeId { get; set; }
         public List<long>? IngredientIds { get; set; }
 
         /// <summary>

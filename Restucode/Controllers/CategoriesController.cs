@@ -15,10 +15,17 @@ namespace Restucode.Controllers
     [ApiController]
     public class CategoriesController(ICategoryService categoryService) : ControllerBase
     {
-        [HttpGet]
-        public async Task<IActionResult> List([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
+        [HttpGet("pagedlist")]
+        public async Task<IActionResult> PagedList([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
         {
-            var model = await categoryService.ListAsync(page, pageSize, search);
+            var model = await categoryService.ListAsyncPaged(page, pageSize, search);
+            return Ok(model);
+        }
+
+        [HttpGet("list")]
+        public async Task<IActionResult> List()
+        {
+            var model = await categoryService.ListAsync();
             return Ok(model);
         }
 
