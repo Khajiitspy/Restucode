@@ -7,7 +7,7 @@ namespace Restucode.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController(IProductService productService): ControllerBase
+    public class ProductsController(IProductService productService) : ControllerBase
     {
         [HttpGet("list")]
         public async Task<IActionResult> List([FromQuery] string? search, int page = 1, int pageSize = 5)
@@ -23,8 +23,15 @@ namespace Restucode.Controllers
             return Ok(model);
         }
 
+        [HttpGet("variant/{id}")]
+        public async Task<IActionResult> GetVariant(long id)
+        {
+            var model = await productService.GetVariant(id);
+            return Ok(model);
+        }
+
         [HttpPost("create")]
-        public async Task<IActionResult> CreateProduct([FromForm]ProductCreateModel model)
+        public async Task<IActionResult> CreateProduct([FromForm] ProductCreateModel model)
         {
             var salo = Request.Form;
             if (model.ImageFiles == null)
@@ -60,5 +67,14 @@ namespace Restucode.Controllers
             return Ok(updatedId);
         }
 
+        [HttpDelete("remove/{id}")]
+        public async Task<IActionResult> Delete(long id)
+        {
+            var result = await productService.DeleteProductVariant(id);
+            if (result)
+                return Ok("Product deleted successfully.");
+            else
+                return BadRequest("Error deleting product.");
+        }
     }
 }

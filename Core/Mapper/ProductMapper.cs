@@ -35,7 +35,7 @@ namespace Core.Mapper
                 .ForMember(dest => dest.Category,
                     opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
                 .ForMember(dest => dest.Size,
-                    opt => opt.MapFrom(src => src.ProductSize != null ? src.ProductSize.Name : null))
+                    opt => opt.MapFrom(src => src.ProductSize != null ? src.ProductSize.Name : string.Empty))
                 .ForMember(dest => dest.Ingredients,
                     opt => opt.MapFrom(src =>
                         (src.ProductIngredients ?? new List<ProductIngredientEntity>())
@@ -48,6 +48,21 @@ namespace Core.Mapper
                         })
                         .ToList()))
                 .ForMember(dest => dest.Images,
+                    opt => opt.MapFrom(src =>
+                        (src.ProductImages ?? new List<ProductImageEntity>())
+                        .OrderBy(pi => pi.Priority)
+                        .Select(pi => pi.Name)
+                        .ToList()));
+
+            CreateMap<ProductVariantEntity, ProductVariantEdit>()
+                .ForMember(dest => dest.IngredientIds,
+                    opt => opt.MapFrom(src =>
+                        (src.ProductIngredients ?? new List<ProductIngredientEntity>())
+                        .Select(pi => pi.Ingredient)
+                        .Where(i => i != null)
+                        .Select(i => i.Id)
+                        .ToList()))
+                .ForMember(dest => dest.ProductImages,
                     opt => opt.MapFrom(src =>
                         (src.ProductImages ?? new List<ProductImageEntity>())
                         .OrderBy(pi => pi.Priority)

@@ -15,6 +15,7 @@ namespace Core.Interface
         public Task<PagedResult<ProductItemViewModel>> List(string? search, int page = 1, int pageSize = 5);
 
         public Task<ProductDetailsViewModel> Details(long id);
+        public Task<ProductVariantEdit> GetVariant(long id);
 
         public Task<long> CreateProduct(ProductCreateModel model);
 
@@ -22,5 +23,7 @@ namespace Core.Interface
         public Task<IEnumerable<ProductSizeModel>> GetSizesAsync();
 
         public Task<long> EditProduct(ProductEditModel model);
+
+        public Task<bool> DeleteProductVariant(long id);
     }
 }

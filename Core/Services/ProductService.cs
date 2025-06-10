@@ -71,6 +71,24 @@ namespace Core.Services
             return model;
         }
 
+        public async Task<ProductVariantEdit> GetVariant(long id)
+        {
+            var product = context.ProductVariants
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductSize)
+                .Include(p => p.Category)
+                .Include(p => p.ProductIngredients)
+                    .ThenInclude(v => v.Ingredient)
+                .AsQueryable();
+
+            if (context.ProductVariants.Where(v => v.Id == id).Count() < 1)
+                throw new Exception("Product variant not found");
+
+            var model = mapper.Map<ProductVariantEdit>(product.Where(p => p.Id == id).First());
+            model.Slug = context.Products.Where(p => p.ProductVariants.Where(v => v.Id == model.Id).Any()).First().Slug;
+            return model;
+        }
+
         public async Task<long> CreateProduct(ProductCreateModel model)
         {
             var existing = await context.Products
@@ -166,8 +184,14 @@ namespace Core.Services
             variant.Weight = model.Weight ?? variant.Weight;
             variant.CategoryId = model.CategoryId ?? variant.CategoryId;
             variant.ProductSizeId = model.ProductSizeId ?? variant.ProductSizeId;
+            variant.ProductId =
+                String.IsNullOrEmpty(model.Slug) ?
+                    variant.ProductId :
+                    (model.Slug == variant.Product.Slug ?
+                        variant.ProductId :
+                        context.Products.FirstOrDefault(p => p.Slug == model.Slug)?.Id ?? variant.ProductId);
 
-            if(model.IngredientIds != null)
+            if (model.IngredientIds != null)
             {
                 var existingIngredients = context.ProductIngredients
                     .Where(pi => pi.ProductVariantId == variant.Id);
@@ -183,34 +207,108 @@ namespace Core.Services
                 }
             }
 
-            if (model.ImageFiles != null && model.ImageFiles?.Count > 0)
+            var imgDelete = variant.ProductImages
+            .Where(x => !model.ImageFiles!.Any(y => y.FileName == x.Name))
+            .ToList();
+
+            foreach (var img in imgDelete)
             {
-                var oldImages = context.ProductImages
-                    .Where(img => img.ProductVariantId == variant.Id);
-                foreach (var item in oldImages)
+                var productImage = await context.ProductImages
+                    .Where(x => x.Id == img.Id)
+                    .SingleOrDefaultAsync();
+                if (productImage != null)
                 {
-                    await imageService.DeleteImageAsync(item.Name);
+                    await imageService.DeleteImageAsync(productImage.Name);
+                    context.ProductImages.Remove(productImage);
                 }
-                context.ProductImages.RemoveRange(oldImages);
-
-                short priority = 1;
-                foreach (var image in model.ImageFiles)
-                {
-                    var savedImage = await imageService.SaveImageAsync(image);
-
-                    context.ProductImages.Add(new ProductImageEntity
-                    {
-                        ProductVariantId = variant.Id,
-                        Name = savedImage,
-                        Priority = priority++
-                    });
-                }
+                context.SaveChanges();
             }
+
+            short p = 0;
+            //Перебираємо усі фото і їх зберігаємо або оновляємо
+            foreach (var imgFile in model.ImageFiles!)
+            {
+                if (imgFile.ContentType == "old-image")
+                {
+                    var img = await context.ProductImages
+                        .Where(x => x.Name == imgFile.FileName)
+                        .SingleOrDefaultAsync();
+                    img.Priority = p;
+                    context.SaveChanges();
+                }
+
+                else
+                {
+                    try
+                    {
+                        var productImage = new ProductImageEntity
+                        {
+                            ProductVariantId = variant.Id,
+                            Name = await imageService.SaveImageAsync(imgFile),
+                            Priority = p
+                        };
+                        context.ProductImages.Add(productImage);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Error Json Parse Data for PRODUCT IMAGE", ex.Message);
+                    }
+                }
+
+                p++;
+
+            }
+
+            //if (model.ImageFiles != null && model.ImageFiles?.Count > 0)
+            //{
+            //    var oldImages = context.ProductImages
+            //        .Where(img => img.ProductVariantId == variant.Id);
+            //    foreach (var item in oldImages)
+            //    {
+            //        await imageService.DeleteImageAsync(item.Name);
+            //    }
+            //    context.ProductImages.RemoveRange(oldImages);
+
+            //    short priority = 1;
+            //    foreach (var image in model.ImageFiles)
+            //    {
+            //        var savedImage = await imageService.SaveImageAsync(image);
+
+            //        context.ProductImages.Add(new ProductImageEntity
+            //        {
+            //            ProductVariantId = variant.Id,
+            //            Name = savedImage,
+            //            Priority = priority++
+            //        });
+            //    }
+            //}
 
             await context.SaveChangesAsync();
 
             return variant.ProductId;
         }
 
+        public async Task<bool> DeleteProductVariant(long id)
+        {
+            var product = await context.ProductVariants
+                .Include(p => p.ProductImages)
+                .Include(p => p.Product)
+                    .ThenInclude(product => product.ProductVariants)
+                .FirstOrDefaultAsync(p => p.Id == id);
+            if (product == null)
+                return false;
+            foreach (var image in product.ProductImages)
+            {
+                await imageService.DeleteImageAsync(image.Name);
+            }
+            context.ProductVariants.Remove(product);
+            if (product.Product.ProductVariants.Count() <= 1)
+            {
+                context.Products.Remove(product.Product);
+            }
+            await context.SaveChangesAsync();
+            return true;
+
+        }
     }
 }

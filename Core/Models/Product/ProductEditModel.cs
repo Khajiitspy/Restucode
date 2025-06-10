@@ -12,6 +12,7 @@ namespace Core.Models.Product
     {
         public long VariantID { get; set; }
         public string? Name { get; set; } = string.Empty;
+        public string? Slug { get; set; } = string.Empty;
         public decimal? Price { get; set; }
         public int? Weight { get; set; }
         public long? CategoryId { get; set; }
