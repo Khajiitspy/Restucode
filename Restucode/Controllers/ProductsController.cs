@@ -76,5 +76,14 @@ namespace Restucode.Controllers
             else
                 return BadRequest("Error deleting product.");
         }
+
+        [HttpPost("ingredients")]
+        public async Task<IActionResult> CreateIngredient([FromForm] CreateIngredientModel model)
+        {
+            var ingredient = await productService.UploadIngredient(model);
+            if (ingredient != null)
+                return Ok(ingredient);
+            return BadRequest();
+        }
     }
 }

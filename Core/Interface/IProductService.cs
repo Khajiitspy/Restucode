@@ -25,5 +25,7 @@ namespace Core.Interface
         public Task<long> EditProduct(ProductEditModel model);
 
         public Task<bool> DeleteProductVariant(long id);
+
+        public Task<IngredientModel> UploadIngredient(CreateIngredientModel model);
     }
 }

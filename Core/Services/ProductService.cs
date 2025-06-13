@@ -310,5 +310,17 @@ namespace Core.Services
             return true;
 
         }
+
+        public async Task<IngredientModel> UploadIngredient(CreateIngredientModel model)
+        {
+            var entity = mapper.Map<IngredientEntity>(model);
+            entity.Image = await imageService.SaveImageAsync(model.ImageUrl!);
+            context.Ingredients.Add(entity);
+            await context.SaveChangesAsync();
+
+            return mapper.Map<IngredientModel>(entity);
+        }
+
+
     }
 }

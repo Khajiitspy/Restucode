@@ -36,5 +36,6 @@ namespace Domain.Entities
         public ICollection<ProductIngredientEntity>? ProductIngredients { get; set; }
 
         public ICollection<ProductImageEntity> ProductImages { get; set; } = new List<ProductImageEntity>();
+        public ICollection<CartEntity>? Carts { get; set; }
     }
 }

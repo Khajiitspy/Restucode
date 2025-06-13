@@ -18,6 +18,7 @@ public class RestucodeDBContext : IdentityDbContext<UserEntity, RoleEntity, long
     public DbSet<ProductVariantEntity> ProductVariants { get; set; }
     public DbSet<ProductIngredientEntity> ProductIngredients { get; set; }
     public DbSet<ProductImageEntity> ProductImages { get; set; }
+    public DbSet<CartEntity> Carts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -43,5 +44,8 @@ public class RestucodeDBContext : IdentityDbContext<UserEntity, RoleEntity, long
 
         builder.Entity<ProductIngredientEntity>()
             .HasKey(pi => new { pi.ProductVariantId, pi.IngredientId });
+        
+        builder.Entity<CartEntity>()
+            .HasKey(pi => new { pi.ProductId, pi.UserId });
     }
 }
