@@ -2,7 +2,7 @@ namespace Core.Models.Cart;
 
 public class CartItemModel
 {
-    public long ProductId { get; set; }
+    public long ProductVariantId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string CategoryId { get; set; } = string.Empty;
     public string CategoryName { get; set; } = string.Empty;

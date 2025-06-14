@@ -46,6 +46,6 @@ public class RestucodeDBContext : IdentityDbContext<UserEntity, RoleEntity, long
             .HasKey(pi => new { pi.ProductVariantId, pi.IngredientId });
         
         builder.Entity<CartEntity>()
-            .HasKey(pi => new { pi.ProductId, pi.UserId });
+            .HasKey(pi => new { pi.ProductVariantId, pi.UserId });
     }
 }

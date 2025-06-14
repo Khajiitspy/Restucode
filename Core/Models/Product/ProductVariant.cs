@@ -17,5 +17,6 @@ namespace Core.Models.Product
 
         public List<IngredientModel> Ingredients { get; set; } = new(); // For variants like "With Cheese", "Without Onions", "Vegan" etc.
         public List<string> Images { get; set; } = new(); // Different images for each variant
+        public int ProductId { get; set; }
     }
 }

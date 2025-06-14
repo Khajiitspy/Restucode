@@ -314,7 +314,7 @@ namespace Core.Services
         public async Task<IngredientModel> UploadIngredient(CreateIngredientModel model)
         {
             var entity = mapper.Map<IngredientEntity>(model);
-            entity.Image = await imageService.SaveImageAsync(model.ImageUrl!);
+            entity.Image = await imageService.SaveImageAsync(model.Image!);
             context.Ingredients.Add(entity);
             await context.SaveChangesAsync();
 

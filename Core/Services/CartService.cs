@@ -14,20 +14,37 @@ public class CartService(RestucodeDBContext context, IAuthService authservice, I
     {
         var userId = await authservice.GetuserId();
         var entity = context.Carts
-            .SingleOrDefault(x => x.UserId == userId && x.ProductId == model.ProductId);
+            .SingleOrDefault(x => x.UserId == userId && x.ProductVariantId == model.ProductVariantId);
         if (entity != null)
-            entity.Quantity = model.Quantity;
+        {
+            entity.Quantity += model.Quantity;
+            if (entity.Quantity <= 0)
+            {
+                context.Carts.Remove(entity);
+            }
+        }
         else
         {
             entity = new CartEntity
             {
                 UserId = userId,
-                ProductId = model.ProductId,
+                ProductVariantId = model.ProductVariantId,
                 Quantity = model.Quantity
             };
-            context.Carts.Add(entity);
-        }
+            context.Carts.Add(entity); }
         await context.SaveChangesAsync();
+    }
+    
+    public async Task RemoveFromCart(long productVariantId)
+    {
+        var userId = await authservice.GetuserId();
+        var entity = context.Carts
+            .SingleOrDefault(x => x.UserId == userId && x.ProductVariantId == productVariantId);
+        if (entity != null)
+        {
+            context.Carts.Remove(entity);
+            await context.SaveChangesAsync();
+        }
     }
 
     public async Task<List<CartItemModel>> GetCartItems()

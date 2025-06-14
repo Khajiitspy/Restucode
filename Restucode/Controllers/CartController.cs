@@ -17,6 +17,13 @@ public class CartController(ICartService cartService) : ControllerBase
         await cartService.CreateUpdate(model);
         return Ok();
     }
+    
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> RemoveFromCart(long id)
+    {
+        await cartService.RemoveFromCart(id);
+        return Ok();
+    }
 
     [HttpGet]
     public async Task<IActionResult> GetCartItems()

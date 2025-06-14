@@ -10,6 +10,6 @@ namespace Core.Models.Product
     public class CreateIngredientModel
     {
         public string Name { get; set; } = string.Empty;
-        public IFormFile? ImageUrl { get; set; }
+        public IFormFile? Image { get; set; }
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Core.Services;
 
-public class AuthService(HttpContextAccessor httpContextAccessor, UserManager<UserEntity> userManager): IAuthService
+public class AuthService(IHttpContextAccessor httpContextAccessor, UserManager<UserEntity> userManager): IAuthService
 {
     public async Task<long> GetuserId()
     {
