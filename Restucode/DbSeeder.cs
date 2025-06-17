@@ -230,5 +230,87 @@ public static class DbSeeder
 
 
         }
+        
+        if (!context.OrderStatuses.Any())
+        {
+            try
+            {
+                await context.OrderStatuses.AddAsync(new OrderStatusEntity()
+                {
+                    Name = "Completed"
+                });
+                await context.OrderStatuses.AddAsync(new OrderStatusEntity()
+                {
+                    Name = "Pending"
+                });
+                await context.SaveChangesAsync();
+            }
+            catch
+            {
+                Console.WriteLine("Error generating Order Statuses");
+            }
+        }
+        
+        if (!context.Orders.Any())
+        {
+            var jsonFile = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "JsonData", "Orders.json");
+            if (File.Exists(jsonFile))
+            {
+                var jsonData = await File.ReadAllTextAsync(jsonFile);
+                try
+                {
+                    var orders = JsonSerializer.Deserialize<List<SeederOrderModel>>(jsonData);
+                    foreach (var order in orders!)
+                    {
+                        var user = await context.Users.FirstOrDefaultAsync(u => u.Email == order.userEmail);
+                        var status = await context.OrderStatuses.FirstOrDefaultAsync(s => s.Id == order.status);
+
+                        if (user == null || status == null)
+                        {
+                            Console.WriteLine($"Missing user or status for order: {order.userEmail}, {order.status}");
+                            continue;
+                        }
+
+                        var orderEntity = new OrderEntity
+                        {
+                            UserId = user.Id,
+                            OrderStatusId = status.Id,
+                            OrderItems = new List<OrderItemEntity>()
+                        };
+
+                        foreach (var item in order.items)
+                        {
+                            var variant = await context.ProductVariants
+                                .FirstOrDefaultAsync(pv => pv.Id == item.productVariantId);
+
+                            if (variant == null)
+                            {
+                                Console.WriteLine($"Missing product variant: {item.productVariantId}");
+                                continue;
+                            }
+
+                            orderEntity.OrderItems.Add(new OrderItemEntity
+                            {
+                                ProductVariantId = variant.Id,
+                                Count = item.count,
+                                PriceBuy = item.priceBuy
+                            });
+                        }
+
+                        await context.Orders.AddAsync(orderEntity);
+                    }
+
+                    await context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error parsing Orders.json: {0}", ex.Message);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Not Found File Orders.json");
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Domain.Migrations
 {
     [DbContext(typeof(RestucodeDBContext))]
-    partial class RestucodeDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250614173317_OrderStatusTable")]
+    partial class OrderStatusTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -206,70 +209,6 @@ namespace Domain.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("tblIngredients");
-                });
-
-            modelBuilder.Entity("Domain.Entities.OrderEntity", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<long>("OrderStatusId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderStatusId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("tblOrders");
-                });
-
-            modelBuilder.Entity("Domain.Entities.OrderItemEntity", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("Count")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<long>("OrderId")
-                        .HasColumnType("bigint");
-
-                    b.Property<decimal>("PriceBuy")
-                        .HasColumnType("numeric");
-
-                    b.Property<long>("ProductVariantId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.HasIndex("ProductVariantId");
-
-                    b.ToTable("tblOrderItems");
                 });
 
             modelBuilder.Entity("Domain.Entities.OrderStatusEntity", b =>
@@ -579,44 +518,6 @@ namespace Domain.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.OrderEntity", b =>
-                {
-                    b.HasOne("Domain.Entities.OrderStatusEntity", "OrderStatus")
-                        .WithMany("Orders")
-                        .HasForeignKey("OrderStatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Identity.UserEntity", "User")
-                        .WithMany("Orders")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("OrderStatus");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.Entities.OrderItemEntity", b =>
-                {
-                    b.HasOne("Domain.Entities.OrderEntity", "Order")
-                        .WithMany("OrderItems")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.ProductVariantEntity", "ProductVariant")
-                        .WithMany()
-                        .HasForeignKey("ProductVariantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
-
-                    b.Navigation("ProductVariant");
-                });
-
             modelBuilder.Entity("Domain.Entities.ProductEntity", b =>
                 {
                     b.HasOne("Domain.Entities.ProductSizeEntity", null)
@@ -746,24 +647,12 @@ namespace Domain.Migrations
 
             modelBuilder.Entity("Domain.Entities.Identity.UserEntity", b =>
                 {
-                    b.Navigation("Orders");
-
                     b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("Domain.Entities.IngredientEntity", b =>
                 {
                     b.Navigation("ProductIngredients");
-                });
-
-            modelBuilder.Entity("Domain.Entities.OrderEntity", b =>
-                {
-                    b.Navigation("OrderItems");
-                });
-
-            modelBuilder.Entity("Domain.Entities.OrderStatusEntity", b =>
-                {
-                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("Domain.Entities.ProductEntity", b =>

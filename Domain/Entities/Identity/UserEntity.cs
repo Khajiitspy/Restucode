@@ -9,4 +9,6 @@ public class UserEntity : IdentityUser<long>
     public string? Image { get; set; } = null;
 
     public virtual ICollection<UserRoleEntity>? UserRoles { get; set; }
+    
+    public ICollection<OrderEntity>? Orders { get; set; }
 }

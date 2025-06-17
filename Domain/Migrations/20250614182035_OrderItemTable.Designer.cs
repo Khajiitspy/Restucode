@@ -3,6 +3,7 @@ using System;
 using Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Domain.Migrations
 {
     [DbContext(typeof(RestucodeDBContext))]
-    partial class RestucodeDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250614182035_OrderItemTable")]
+    partial class OrderItemTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -260,6 +263,9 @@ namespace Domain.Migrations
                     b.Property<decimal>("PriceBuy")
                         .HasColumnType("numeric");
 
+                    b.Property<long?>("ProductId")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("ProductVariantId")
                         .HasColumnType("bigint");
 
@@ -267,7 +273,7 @@ namespace Domain.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.HasIndex("ProductVariantId");
+                    b.HasIndex("ProductId");
 
                     b.ToTable("tblOrderItems");
                 });
@@ -606,15 +612,13 @@ namespace Domain.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.ProductVariantEntity", "ProductVariant")
+                    b.HasOne("Domain.Entities.ProductEntity", "Product")
                         .WithMany()
-                        .HasForeignKey("ProductVariantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProductId");
 
                     b.Navigation("Order");
 
-                    b.Navigation("ProductVariant");
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Domain.Entities.ProductEntity", b =>

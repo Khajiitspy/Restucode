@@ -1,0 +1,29 @@
+[
+  {
+    "userEmail": "admin@example.com",
+    "status": 1,
+    "items": [
+      {
+        "productVariantId": 20,
+        "count": 1,
+        "priceBuy": 50
+      },
+      {
+        "productVariantId": 22,
+        "count": 2,
+        "priceBuy": 100
+      }
+    ]
+  },
+  {
+    "userEmail": "admin@example.com",
+    "status": 2,
+    "items": [
+      {
+        "productVariantId": 21,
+        "count": 1,
+        "priceBuy": 195
+      }
+    ]
+  }
+]
