@@ -12,13 +12,6 @@ public class CategoryEditValidator : AbstractValidator<CategoryEditModel>
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Назва є обов'язковою")
             .Must(name => !string.IsNullOrEmpty(name)).WithMessage("Назва є обов'язковою")
-            .DependentRules(() =>
-            {
-                RuleFor(x => x.Name)
-                   .MustAsync(async (model, name, cancellationToken) =>
-                       !await db.Categories.AnyAsync(x => (x.Name.ToLower() == name.ToLower().Trim() && x.Id != model.Id), cancellationToken))
-                   .WithMessage("Категорія з такою назвою вже існує");
-            })
             .MaximumLength(250).WithMessage("Назва повинна містити не більше 250 символів");
 
         RuleFor(x => x.Image)

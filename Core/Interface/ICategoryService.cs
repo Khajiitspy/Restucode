@@ -18,7 +18,7 @@ namespace Core.Interface
         public Task<PagedResult<CategoryItemViewModel>> ListAsyncPaged(int page, int pageSize, string? search);
         public Task<IEnumerable<CategoryItemViewModel>> ListAsync();
 
-        public Task<CategoryItemViewModel> Edit(CategoryEditModel model);
+        public Task<CategoryItemViewModel> Edit(long id, CategoryEditModel model);
 
         public Task<bool> Delete(long Id);
     }

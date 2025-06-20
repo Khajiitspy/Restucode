@@ -32,13 +32,11 @@ namespace Restucode.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] CategoryAddModel model)
         {
-
             var category = await categoryService.Create(model);
 
             return Ok(category);
         }
-
-        [Authorize(Roles = $"{Roles.Admin}")]
+        
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(long id)
         {
@@ -50,7 +48,7 @@ namespace Restucode.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Edit(long id, [FromForm] CategoryEditModel model)
         {
-            var category = await categoryService.Edit(model);
+            var category = await categoryService.Edit(id, model);
             return Ok(category);
         }
 

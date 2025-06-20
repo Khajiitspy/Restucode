@@ -1,7 +1,7 @@
 [
   {
     "userEmail": "admin@example.com",
-    "status": 1,
+    "status": 3,
     "items": [
       {
         "productVariantId": 20,
@@ -17,7 +17,7 @@
   },
   {
     "userEmail": "admin@example.com",
-    "status": 2,
+    "status": 5,
     "items": [
       {
         "productVariantId": 21,

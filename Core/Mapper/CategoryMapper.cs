@@ -23,9 +23,7 @@ namespace Core.Mapper
                 .ForMember(dest => dest.Slug, opt => opt.MapFrom(src => slugHelper.GenerateSlug(src.Name)))
                 .ForMember(dest => dest.Image, opt => opt.Ignore());
             CreateMap<CategoryEntity, CategoryEditModel>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Image, opt => opt.Ignore())
-                .ForMember(dest => dest.ViewImage, opt => opt.MapFrom(src => src.Image))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
         }

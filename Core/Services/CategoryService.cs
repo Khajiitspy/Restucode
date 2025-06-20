@@ -79,9 +79,9 @@ namespace Core.Services
         }
 
 
-        public async Task<CategoryItemViewModel> Edit(CategoryEditModel model)
+        public async Task<CategoryItemViewModel> Edit(long id, CategoryEditModel model)
         {
-            var existing = await context.Categories.FirstOrDefaultAsync(x => x.Id == model.Id);
+            var existing = await context.Categories.FirstOrDefaultAsync(x => x.Id == id);
 
             existing = mapper.Map(model, existing);
 
@@ -90,6 +90,7 @@ namespace Core.Services
                 await imageService.DeleteImageAsync(existing.Image);
                 existing.Image = await imageService.SaveImageAsync(model.Image);
             }
+
             await context.SaveChangesAsync();
 
             var item = mapper.Map<CategoryItemViewModel>(existing);

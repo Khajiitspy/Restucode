@@ -233,23 +233,19 @@ public static class DbSeeder
         
         if (!context.OrderStatuses.Any())
         {
-            try
-            {
-                await context.OrderStatuses.AddAsync(new OrderStatusEntity()
-                {
-                    Name = "Completed"
-                });
-                await context.OrderStatuses.AddAsync(new OrderStatusEntity()
-                {
-                    Name = "Pending"
-                });
-                await context.SaveChangesAsync();
-            }
-            catch
-            {
-                Console.WriteLine("Error generating Order Statuses");
-            }
+            List<string> names = new List<string>() { 
+                "Нове", "Очікує оплати", "Оплачено", 
+                "В обробці", "Готується до відправки", 
+                "Відправлено", "У дорозі", "Доставлено",    
+                "Завершено", "Скасовано (вручну)", "Скасовано (автоматично)", 
+                "Повернення", "В обробці повернення" };
+
+            var orderStatuses = names.Select(name => new OrderStatusEntity { Name = name }).ToList();
+
+            await context.OrderStatuses.AddRangeAsync(orderStatuses);
+            await context.SaveChangesAsync();
         }
+        
         
         if (!context.Orders.Any())
         {
@@ -312,5 +308,6 @@ public static class DbSeeder
                 Console.WriteLine("Not Found File Orders.json");
             }
         }
+        
     }
 }
