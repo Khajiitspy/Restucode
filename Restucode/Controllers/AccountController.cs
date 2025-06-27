@@ -12,7 +12,7 @@ namespace Restucode.Controllers
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class AccountController(IJwtTokenService jwtTokenService,
-            UserManager<UserEntity> userManager, IMapper mapper, IImageService imageService) : ControllerBase
+            UserManager<UserEntity> userManager, IMapper mapper, IImageService imageService, IGoogleService googleService) : ControllerBase
     {
         [HttpPost]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
@@ -49,6 +49,53 @@ namespace Restucode.Controllers
             }
             return Unauthorized("Something Went Wrong... try Logging in again.");
         }
+        
+        [HttpPost]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleToken model)
+        {
+            var payload = await googleService.VerifyTokenAsync(model.Token);
+            if (payload == null)
+                return Unauthorized();
 
+            var user = await userManager.FindByEmailAsync(payload.Email);
+            if (user != null)
+            {
+                var token = await jwtTokenService.CreateTokenAsync(user);
+                return Ok(new { Token = token });
+            }
+            return Unauthorized("This email is not registered");
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> GoogleRegister([FromBody] GoogleToken model)
+        {
+            var payload = await googleService.VerifyTokenAsync(model.Token);
+            if (payload == null)
+                return Unauthorized(new { error = "Invalid Google token" });
+
+            var existingUser = await userManager.FindByEmailAsync(payload.Email);
+            if (existingUser != null)
+                return BadRequest(new { error = "User already exists" });
+
+            var user = new UserEntity
+            {
+                Email = payload.Email,
+                UserName = payload.Email,
+                FirstName = payload.GivenName,
+                LastName = payload.FamilyName,
+                Image = await imageService.SaveImageFromUrlAsync(payload.Picture)
+            };
+
+            var randomPassword = Guid.NewGuid().ToString() + "!Aa1";
+            var result = await userManager.CreateAsync(user, randomPassword);
+
+            if (!result.Succeeded)
+                return BadRequest(new { error = "Failed to create user" });
+
+            await userManager.AddToRoleAsync(user, Roles.User);
+
+            var jwt = await jwtTokenService.CreateTokenAsync(user);
+            return Ok(new { Token = jwt });
+        }
     }
 }
