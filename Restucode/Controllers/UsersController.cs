@@ -2,9 +2,11 @@ using Core.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Core.Models.AdminUser;
 using Core.Models.General;
-using Restucode.Constants;
+using Core.Models.Seeder;
+using Core.Constants;
 
 namespace Restucode.Controllers;
 
@@ -22,26 +24,39 @@ public class UsersController(IUserService userService) : Controller
 
     [HttpGet("search")]
     [Authorize(Roles = Roles.Admin)]
-    public async Task<ActionResult<PagedResult<AdminUserItemModel>>> SearchUsers(
-        [FromQuery] string? role,
-        [FromQuery] string? fullName,
-        [FromQuery] DateTime? startDate,
-        [FromQuery] DateTime? endDate,
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 5
-        )
+    public async Task<ActionResult<PagedResult<AdminUserItemModel>>> SearchUsers([FromQuery] AdminUserFilterModel model)
     {
-        var searchModel = new AdminUserFilterModel
-        {
-            Role = role,
-            FullName = fullName,
-            RegisteredFrom = startDate,
-            RegisteredTo = endDate,
-            Page = page,
-            PageSize = pageSize
-        };
-
-        var result = await userService.GetFilteredUsersAsync(searchModel);
+        var result = await userService.GetFilteredUsersAsync(model);
         return Ok(result);
+    }
+
+    [HttpGet("seed")]
+    public async Task<IActionResult> SeedUsers([FromQuery] SeedItemsModel model)
+    {
+        var result = await userService.SeedAsync(model);
+        return Ok(result);
+    }
+
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Edit([FromForm] UserEditModel request)
+    {
+        await userService.EditAsync(request);
+        return Ok();
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("{id}")]
+    public async Task<ActionResult<UserEditViewModel>> GetById(long id)
+    {
+        var user = await userService.GetByIdAsync(id);
+        return Ok(user);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("roles")]
+    public async Task<ActionResult<List<string>>> GetAllRoles()
+    {
+        var roles = await userService.GetAllRoles();
+        return Ok(roles);
     }
 }

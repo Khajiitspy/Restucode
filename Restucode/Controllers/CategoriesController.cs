@@ -7,7 +7,7 @@ using Domain.Entities;
 using Core.Models.Category;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
-using Restucode.Constants;
+using Core.Constants;
 
 namespace Restucode.Controllers
 {

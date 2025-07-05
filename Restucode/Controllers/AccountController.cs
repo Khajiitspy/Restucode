@@ -6,7 +6,7 @@ using Domain.Entities.Identity;
 using Core.Interface;
 using Core.Models.Account;
 using System.Security.Claims;
-using Restucode.Constants;
+using Core.Constants;
 using Core.SMTP;
 using Microsoft.EntityFrameworkCore;
 

@@ -18,6 +18,7 @@
 		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.8" />
 		<PackageReference Include="Slugify" Version="0.1.0.20570" />
 	  <PackageReference Include="NETCore.MailKit" Version="2.0.2" />
+	  <PackageReference Include="Bogus" Version="35.6.3" />
 
 	</ItemGroup>
 

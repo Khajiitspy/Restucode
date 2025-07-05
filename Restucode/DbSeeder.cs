@@ -2,7 +2,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Restucode.Constants;
+using Core.Constants;
 using Domain;
 using Domain.Entities;
 using Domain.Entities.Identity;
