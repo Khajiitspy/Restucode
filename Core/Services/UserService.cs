@@ -33,7 +33,7 @@ public class UserService(UserManager<UserEntity> userManager,
             var user = users.FirstOrDefault(u => u.Id == login.UserId);
             if (user != null)
             {
-                user.LoginTypes.Add(login.LoginProvider);
+                // user.LoginTypes.Add(login.LoginProvider);
             }
         });
 
@@ -45,7 +45,7 @@ public class UserService(UserManager<UserEntity> userManager,
            {
                if (!string.IsNullOrEmpty(user.PasswordHash))
                {
-                   adminUser.LoginTypes.Add("Password");
+                   // adminUser.LoginTypes.Add("Password");
                }
            }
        });
@@ -66,20 +66,31 @@ public class UserService(UserManager<UserEntity> userManager,
                 u.LastName.ToLower().Contains(nameFilter));
         }
 
-        if (filter.Roles != null && filter.Roles.Any())
+        // if (filter.Roles != null && filter.Roles.Any())
+        // {
+        //     var validRoles = filter.Roles.Where(role => role != null);
+
+        //     if (validRoles != null && validRoles.Count() > 0)
+        //     {
+        //         var usersInRole = (await Task.WhenAll(
+        //             filter.Roles.Select(role => userManager.GetUsersInRoleAsync(role))
+        //         )).SelectMany(u => u).ToList();
+
+        //         var userIds = usersInRole.Select(u => u.Id).ToHashSet();
+
+        //         query = query.Where(u => userIds.Contains(u.Id));
+        //     }
+        // }
+
+        if (filter.Roles != null && filter.Roles.Any() && !filter.Roles.All(string.IsNullOrWhiteSpace))
         {
-            var validRoles = filter.Roles.Where(role => role != null);
-
-            if (validRoles != null && validRoles.Count() > 0)
-            {
-                var usersInRole = (await Task.WhenAll(
-                    filter.Roles.Select(role => userManager.GetUsersInRoleAsync(role))
-                )).SelectMany(u => u).ToList();
-
-                var userIds = usersInRole.Select(u => u.Id).ToHashSet();
-
-                query = query.Where(u => userIds.Contains(u.Id));
-            }
+            var roleSet = filter.Roles.ToHashSet();
+            query = query.Where(user =>
+                user.UserRoles
+                    .Select(ur => ur.Role.Name)
+                    .Intersect(roleSet)
+                    .Count() == roleSet.Count
+            );
         }
 
         if (filter.RegisteredFrom.HasValue)
@@ -96,52 +107,59 @@ public class UserService(UserManager<UserEntity> userManager,
 
         var total = await query.CountAsync();
 
+        // var users = await query
+        //     .Skip((filter.Page - 1) * filter.PageSize)
+        //     .Take(filter.PageSize)
+        //     .ToListAsync();
+
         var users = await query
+            .OrderBy(u => u.Id)
             .Skip((filter.Page - 1) * filter.PageSize)
             .Take(filter.PageSize)
+            .ProjectTo<AdminUserItemModel>(mapper.ConfigurationProvider)
             .ToListAsync();
 
-        var result = users.Select(u => new AdminUserItemModel
-        {
-            Id = u.Id,
-            FullName = $"{u.FirstName} {u.LastName}",
-            Email = u.Email!,
-            Image = u.Image ?? "",
-            LoginTypes = new List<string>(),
-            Roles = new List<string>(),
-            DateCreated = u.DateCreated
-        }).ToList();
+        // var result = users.Select(u => new AdminUserItemModel
+        // {
+        //     Id = u.Id,
+        //     FullName = $"{u.FirstName} {u.LastName}",
+        //     Email = u.Email!,
+        //     Image = u.Image ?? "",
+        //     LoginTypes = new List<string>(),
+        //     Roles = new List<string>(),
+        //     DateCreated = u.DateCreated
+        // }).ToList();
 
-        var logins = await context.UserLogins.ToListAsync();
-        foreach (var login in logins)
-        {
-            var target = result.FirstOrDefault(x => x.Id == login.UserId);
-            if (target != null && !target.LoginTypes.Contains(login.LoginProvider))
-            {
-                target.LoginTypes.Add(login.LoginProvider);
-            }
-        }
+        // var logins = await context.UserLogins.ToListAsync();
+        // foreach (var login in logins)
+        // {
+        //     var target = result.FirstOrDefault(x => x.Id == login.UserId);
+        //     if (target != null && !target.LoginTypes.Contains(login.LoginProvider))
+        //     {
+        //         target.LoginTypes.Add(login.LoginProvider);
+        //     }
+        // }
 
-        var identityUsers = await userManager.Users.AsNoTracking().ToListAsync();
+        // var identityUsers = await userManager.Users.AsNoTracking().ToListAsync();
 
-        foreach (var identityUser in identityUsers)
-        {
-            var adminUser = result.FirstOrDefault(u => u.Id == identityUser.Id);
-            if (adminUser != null)
-            {
-                var roles = await userManager.GetRolesAsync(identityUser);
-                adminUser.Roles = roles.ToList();
+        // foreach (var identityUser in identityUsers)
+        // {
+        //     var adminUser = result.FirstOrDefault(u => u.Id == identityUser.Id);
+        //     if (adminUser != null)
+        //     {
+        //         var roles = await userManager.GetRolesAsync(identityUser);
+        //         adminUser.Roles = roles.ToList();
 
-                if (!string.IsNullOrEmpty(identityUser.PasswordHash))
-                {
-                    adminUser.LoginTypes.Add("Password");
-                }
-            }
-        }
+        //         if (!string.IsNullOrEmpty(identityUser.PasswordHash))
+        //         {
+        //             adminUser.LoginTypes.Add("Password");
+        //         }
+        //     }
+        // }
 
         return new PagedResult<AdminUserItemModel>
         {
-            Items = result,
+            Items = users,
             TotalItems = total,
             Page = filter.Page,
             PageSize = filter.PageSize

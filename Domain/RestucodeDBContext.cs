@@ -7,7 +7,9 @@ using System.Reflection.Emit;
 
 namespace Domain;
 
-public class RestucodeDBContext : IdentityDbContext<UserEntity, RoleEntity, long>
+public class RestucodeDBContext : IdentityDbContext<UserEntity, RoleEntity, long,
+        IdentityUserClaim<long>, UserRoleEntity, UserLoginEntity,
+        IdentityRoleClaim<long>, IdentityUserToken<long>>
 {
     public RestucodeDBContext(DbContextOptions<RestucodeDBContext> opt) : base(opt) { }
 
@@ -45,6 +47,13 @@ public class RestucodeDBContext : IdentityDbContext<UserEntity, RoleEntity, long
             .WithOne(pi => pi.ProductVariant)
             .HasForeignKey(pi => pi.ProductVariantId);
 
+        builder.Entity<UserLoginEntity>(b =>
+        {
+            b.HasOne(l => l.User)
+                .WithMany(u => u.UserLogins)
+                .HasForeignKey(l => l.UserId)
+                .IsRequired();
+        });
 
         builder.Entity<ProductIngredientEntity>()
             .HasKey(pi => new { pi.ProductVariantId, pi.IngredientId });
