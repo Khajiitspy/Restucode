@@ -50,6 +50,7 @@ public class CartService(RestucodeDBContext context, IAuthService authservice, I
     public async Task<List<CartItemModel>> GetCartItems()
     {
         var userId = await authservice.GetuserId();
+        Console.WriteLine("USER - ID: " + userId + "--------------------");
 
         var items = await context.Carts
             .Where(x => x.UserId == userId)

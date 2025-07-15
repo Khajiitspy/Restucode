@@ -16,6 +16,7 @@ public class OrdersController(IOrderService orderService): ControllerBase
     public async Task<IActionResult> GetUserOrders()
     {
         var orders = await orderService.GetUserOrders();
+        Console.WriteLine("<------" + orders + "------>");
         return Ok(orders);
     }
 }

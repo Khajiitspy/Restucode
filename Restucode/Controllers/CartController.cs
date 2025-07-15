@@ -31,4 +31,11 @@ public class CartController(ICartService cartService) : ControllerBase
         var model = await cartService.GetCartItems();
         return Ok(model);
     }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> OrderCart(){
+        await cartService.OrderCart();
+        return Ok();
+    }
 }
