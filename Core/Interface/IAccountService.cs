@@ -9,4 +9,3 @@ public interface IAccountService
     public Task<bool> ValidateResetTokenAsync(ValidateTokenModel model);
     public Task ResetPasswordAsync(ResetPasswordModel model);
 }
- 

@@ -14,6 +14,7 @@ public class OrderService(RestucodeDBContext context, IAuthService authservice, 
         var orders = await context.Orders
             .Include(o => o.OrderItems)
             .ThenInclude(i => i.ProductVariant)
+            .Include(o => o.OrderStatus)
             .Where(o => o.UserId == userId)
             .ToListAsync();
 

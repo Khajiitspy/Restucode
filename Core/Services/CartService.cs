@@ -59,4 +59,40 @@ public class CartService(RestucodeDBContext context, IAuthService authservice, I
         
         return items;
     }
+
+    public async Task OrderCart(){
+        var orderStatusId = new Random().Next(3,15);
+        var userId = await authservice.GetuserId();
+
+        var order = new OrderEntity{
+            OrderStatusId = orderStatusId,
+            UserId = userId,
+            OrderItems = new List<OrderItemEntity>{}
+        };
+
+        context.Orders.Add(order);
+        await context.SaveChangesAsync();
+
+        var items = await context.Carts
+            .Include(x => x.ProductVariant)
+            .Where(x => x.UserId == userId)
+            .ToListAsync();
+
+        items.ForEach(x => {
+            context.OrderItems.Add(new OrderItemEntity{
+                PriceBuy = x.ProductVariant.Price,
+                Count = x.Quantity,
+                ProductVariantId = x.ProductVariantId,
+                OrderId = order.Id,
+            });
+        });
+
+        await context.SaveChangesAsync();
+
+        items.ForEach(x => {
+            context.Carts.Remove(x);
+        });
+
+        await context.SaveChangesAsync();
+    }
 }

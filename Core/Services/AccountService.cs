@@ -16,7 +16,8 @@ public class AccountService(IJwtTokenService tokenService,
     IMapper mapper,
     IConfiguration configuration,
     IImageService imageService,
-    ISmtpService smtpService
+    ISmtpService smtpService,
+    IAuthService authservice
     ) : IAccountService
 {
 
@@ -119,5 +120,4 @@ public class AccountService(IJwtTokenService tokenService,
         if (user != null)
             await userManager.ResetPasswordAsync(user, model.Token, model.Password);
     }
-
 }

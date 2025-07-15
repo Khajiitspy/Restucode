@@ -16,4 +16,13 @@ public class AuthService(IHttpContextAccessor httpContextAccessor, UserManager<U
 
         return user.Id;
     }
+
+    public async Task<string> GetUserEmail()
+    {
+        var email = httpContextAccessor.HttpContext?.User?.Claims.First().Value;
+        if (string.IsNullOrEmpty(email))
+            throw new UnauthorizedAccessException("User is not authenticated");
+
+        return email;
+    }
 }
