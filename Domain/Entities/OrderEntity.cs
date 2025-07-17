@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Domain.Entities.Identity;
+using Domain.Entities.Delivery;
 
 namespace Domain.Entities;
 
@@ -15,4 +16,5 @@ public class OrderEntity : BaseEntity<long>
     public UserEntity? User { get; set; }
     
     public ICollection<OrderItemEntity>? OrderItems { get; set; }
+    public DeliveryInfoEntity? DeliveryInfo {get; set; }
 }

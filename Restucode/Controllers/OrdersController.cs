@@ -8,7 +8,7 @@ namespace Restucode.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
+// [Authorize]
 public class OrdersController(IOrderService orderService): ControllerBase
 {
     [Authorize]
@@ -18,5 +18,11 @@ public class OrdersController(IOrderService orderService): ControllerBase
         var orders = await orderService.GetUserOrders();
         Console.WriteLine("<------" + orders + "------>");
         return Ok(orders);
+    }
+
+    [HttpGet("options")]
+    public async Task<IActionResult> GetOrderOptions(){
+        var options = await orderService.GetOrderOptions();
+        return Ok(options);
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Domain.Entities.Identity;
+using Domain.Entities.Delivery;
 using Domain.Entities;
 using System.Reflection.Emit;
 
@@ -25,6 +26,10 @@ public class RestucodeDBContext : IdentityDbContext<UserEntity, RoleEntity, long
     public DbSet<OrderStatusEntity> OrderStatuses { get; set; }
     public DbSet<OrderEntity> Orders { get; set; }
     public DbSet<OrderItemEntity> OrderItems { get; set; }
+    public DbSet<CityEntity> Cities { get; set; }
+    public DbSet<PostDepartmentEntity> PostDepartments { get; set; }
+    public DbSet<PaymentTypeEntity> PaymentTypes { get; set; }
+    public DbSet<DeliveryInfoEntity> DeliveryInfos { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

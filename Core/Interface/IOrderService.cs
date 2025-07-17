@@ -8,4 +8,5 @@ namespace Core.Interface;
 public interface IOrderService
 {
     public Task<List<OrderModel>> GetUserOrders();
+    public Task<OrderOptions> GetOrderOptions();
 }

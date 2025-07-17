@@ -55,6 +55,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
@@ -67,6 +68,7 @@ builder.Services.AddScoped<IGoogleService, GoogleService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ISmtpService, SmtpService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<INovaPoshtaService, NovaPoshtaService>();
  
 builder.Services.AddControllers();
 

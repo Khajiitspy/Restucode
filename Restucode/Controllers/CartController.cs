@@ -1,5 +1,6 @@
 using Core.Interface;
 using Core.Models.Cart;
+using Core.Models.Order;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,17 @@ public class CartController(ICartService cartService) : ControllerBase
     public async Task<IActionResult> CreateUpdate([FromBody] CartCreateUpdateModel model)
     {
         await cartService.CreateUpdate(model);
+        return Ok();
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> AddRange([FromBody] List<CartCreateUpdateModel> modelItems)
+    {
+        foreach (var item in modelItems)
+        {
+            await cartService.CreateUpdate(item);
+        }
         return Ok();
     }
     
@@ -34,8 +46,8 @@ public class CartController(ICartService cartService) : ControllerBase
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> OrderCart(){
-        await cartService.OrderCart();
+    public async Task<IActionResult> OrderCart([FromBody] OrderInformation info){
+        await cartService.OrderCart(info);
         return Ok();
     }
 }

@@ -2,8 +2,10 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Core.Interface;
 using Core.Models.Cart;
+using Core.Models.Order;
 using Domain;
 using Domain.Entities;
+using Domain.Entities.Delivery;
 using Microsoft.EntityFrameworkCore;
 
 namespace Core.Services;
@@ -60,18 +62,27 @@ public class CartService(RestucodeDBContext context, IAuthService authservice, I
         return items;
     }
 
-    public async Task OrderCart(){
+    public async Task OrderCart(OrderInformation info){
         var orderStatusId = new Random().Next(3,15);
         var userId = await authservice.GetuserId();
 
         var order = new OrderEntity{
             OrderStatusId = orderStatusId,
             UserId = userId,
-            OrderItems = new List<OrderItemEntity>{}
+            OrderItems = new List<OrderItemEntity>{},
+            DeliveryInfo = new DeliveryInfoEntity{
+                CityId = info.CityId,
+                PostDepartmentId = info.PostDepartmentId,
+                PaymentTypeId = info.PaymentTypeId,
+                PhoneNumber = info.PhoneNumber,
+                RecipientName = info.RecipientName
+            }
         };
 
         context.Orders.Add(order);
         await context.SaveChangesAsync();
+
+        order.DeliveryInfo.OrderId = order.Id;
 
         var items = await context.Carts
             .Include(x => x.ProductVariant)
