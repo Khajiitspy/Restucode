@@ -214,7 +214,7 @@ public static class DbSeeder
 
             string[] images = {
                 "https://matsuri.com.ua/img_files/gallery_commerce/products/big/commerce_products_images_51.webp?47d1e990583c9c67424d369f3414728e",
-                "https://cdn.lifehacker.ru/wp-content/uploads/2022/03/11187_1522960128.7729_1646727034-1170x585.jpg",
+                "https://dovidka.biz.ua/wp-content/uploads/2016/04/istorychnyy-portret-yuliya-tsezarya-skorocheno.jpg",
             };
 
             int p = 0;
@@ -312,36 +312,36 @@ public static class DbSeeder
         }
 
         
-        if (!context.Cities.Any())
-        {
-            var list = new List<CityEntity>
-            {
-                new CityEntity { Name = "Київ" },
-                new CityEntity { Name = "Львів" },
-                new CityEntity { Name = "Одеса" },
-                new CityEntity { Name = "Харків" },
-                new CityEntity { Name = "Дніпро" },
-                new CityEntity { Name = "Ternopil" } // To lazy to translate
-            };
+        //if (!context.Cities.Any())
+        //{
+        //    var list = new List<CityEntity>
+        //    {
+        //        new CityEntity { Name = "Київ" },
+        //        new CityEntity { Name = "Львів" },
+        //        new CityEntity { Name = "Одеса" },
+        //        new CityEntity { Name = "Харків" },
+        //        new CityEntity { Name = "Дніпро" },
+        //        new CityEntity { Name = "Ternopil" } // To lazy to translate
+        //    };
 
-            await context.Cities.AddRangeAsync(list);
-            await context.SaveChangesAsync();
-        }
+        //    await context.Cities.AddRangeAsync(list);
+        //    await context.SaveChangesAsync();
+        //}
 
-        if (!context.PostDepartments.Any())
-        {
-            var list = new List<PostDepartmentEntity>
-            {
-                new PostDepartmentEntity { Name = "Відділення №1" },
-                new PostDepartmentEntity { Name = "Відділення №2" },
-                new PostDepartmentEntity { Name = "Відділення №3" },
-                new PostDepartmentEntity { Name = "Відділення №4" },
-                new PostDepartmentEntity { Name = "Відділення №5" }
-            };
+        //if (!context.PostDepartments.Any())
+        //{
+        //    var list = new List<PostDepartmentEntity>
+        //    {
+        //        new PostDepartmentEntity { Name = "Відділення №1" },
+        //        new PostDepartmentEntity { Name = "Відділення №2" },
+        //        new PostDepartmentEntity { Name = "Відділення №3" },
+        //        new PostDepartmentEntity { Name = "Відділення №4" },
+        //        new PostDepartmentEntity { Name = "Відділення №5" }
+        //    };
 
-            await context.PostDepartments.AddRangeAsync(list);
-            await context.SaveChangesAsync();
-        }
+        //    await context.PostDepartments.AddRangeAsync(list);
+        //    await context.SaveChangesAsync();
+        //}
 
         if (!context.PaymentTypes.Any())
         {
