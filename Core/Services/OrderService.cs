@@ -28,23 +28,40 @@ public class OrderService(RestucodeDBContext context, IAuthService authservice, 
         return mapper.Map<List<OrderModel>>(orders);
     }
 
-    public async Task<OrderOptions> GetOrderOptions()
+    public async Task<List<SimpleModel>> GetCities(string? search = null)
     {
-        var cities = await context.Cities
-            .ToListAsync();
+        if(search == null || search == ""){
+            Console.WriteLine("search Is NUll!!!!!");
+            var cities = await context.Cities
+                .OrderBy(c => c.Id)
+                .ToListAsync();
 
+            return mapper.Map<List<SimpleModel>>(cities);
+        }
+        else{
+            var cities = await context.Cities
+                .Where(c => c.Name.ToLower().Contains(search.ToLower()))
+                .OrderBy(c => c.Name.ToLower().IndexOf(search.ToLower()))
+                .ToListAsync();
+
+            return mapper.Map<List<SimpleModel>>(cities);
+        }
+    }
+
+    public async Task<List<SimpleModel>> GetPostDepartments(long cityId)
+    {
         var postDepartments = await context.PostDepartments
+            .Where(d => d.CityId == cityId)
             .ToListAsync();
 
+        return mapper.Map<List<SimpleModel>>(postDepartments);
+    }
+
+    public async Task<List<SimpleModel>> GetPaymentTypes()
+    {
         var paymentTypes = await context.PaymentTypes
             .ToListAsync();
 
-        var OrderOp = new OrderOptions {
-            Cities = mapper.Map<List<SimpleModel>>(cities),
-            PostDepartments = mapper.Map<List<SimpleModel>>(postDepartments),
-            PaymentTypes = mapper.Map<List<SimpleModel>>(paymentTypes),
-        };
-
-        return OrderOp;
+        return mapper.Map<List<SimpleModel>>(paymentTypes);
     }
 }

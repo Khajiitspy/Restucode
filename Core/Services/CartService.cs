@@ -1,3 +1,6 @@
+using System.Net.Mail;
+using System.Net.Http.Headers;
+using Core.SMTP;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Core.Interface;
@@ -10,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Core.Services;
 
-public class CartService(RestucodeDBContext context, IAuthService authservice, IMapper mapper): ICartService
+public class CartService(RestucodeDBContext context, IAuthService authservice, IMapper mapper, ISmtpService smtpService): ICartService
 {
     public async Task CreateUpdate(CartCreateUpdateModel model)
     {
@@ -89,6 +92,8 @@ public class CartService(RestucodeDBContext context, IAuthService authservice, I
             .Where(x => x.UserId == userId)
             .ToListAsync();
 
+        decimal totalPrice = 0;
+
         items.ForEach(x => {
             context.OrderItems.Add(new OrderItemEntity{
                 PriceBuy = x.ProductVariant.Price,
@@ -96,6 +101,7 @@ public class CartService(RestucodeDBContext context, IAuthService authservice, I
                 ProductVariantId = x.ProductVariantId,
                 OrderId = order.Id,
             });
+            totalPrice += x.ProductVariant.Price * x.Quantity;
         });
 
         await context.SaveChangesAsync();
@@ -105,5 +111,14 @@ public class CartService(RestucodeDBContext context, IAuthService authservice, I
         });
 
         await context.SaveChangesAsync();
+
+        var emailModel = new EmailMessage
+        {
+            To = info.Email,
+            Subject = "New Order For " + info.RecipientName,
+            Body = $"<p>Ordered {order.OrderItems.Count()} items for ${totalPrice}"
+        };
+
+        await smtpService.SendEmailAsync(emailModel);
     }
 }

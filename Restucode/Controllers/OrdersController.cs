@@ -20,9 +20,21 @@ public class OrdersController(IOrderService orderService): ControllerBase
         return Ok(orders);
     }
 
-    [HttpGet("options")]
-    public async Task<IActionResult> GetOrderOptions(){
-        var options = await orderService.GetOrderOptions();
-        return Ok(options);
+    [HttpGet("cities")]
+    public async Task<IActionResult> GetCities([FromQuery] string? search = null){
+        var cities = await orderService.GetCities(search);
+        return Ok(cities);
+    }
+
+    [HttpGet("postDepartments")]
+    public async Task<IActionResult> GetPostDepartments([FromQuery] long cityId){
+        var postDepartments = await orderService.GetPostDepartments(cityId);
+        return Ok(postDepartments);
+    }
+
+    [HttpGet("paymentTypes")]
+    public async Task<IActionResult> GetPaymentTypes(){
+        var paymentTypes = await orderService.GetPaymentTypes();
+        return Ok(paymentTypes);
     }
 }
