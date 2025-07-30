@@ -186,5 +186,28 @@ namespace Restucode.Controllers
         //         .ToListAsync();
         // }
 
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> RefreshToken(){
+            var user = await accountService.GetUser(); // I split the getUser and token generation
+            var token = await jwtTokenService.CreateTokenAsync(user);
+            return Ok(new { Token = token });
+        } 
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> GetFullName()
+        {
+            var fullName = await accountService.GetFullName();
+            return Ok(fullName);
+        }
+        
+        [Authorize]
+        [HttpPut]
+        public async Task<IActionResult> EditProfile([FromForm] ProfileEditModel request)
+        {
+            await accountService.EditProfile(request);
+            return Ok();
+        }
     }
 }

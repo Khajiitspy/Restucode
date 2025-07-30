@@ -1,12 +1,15 @@
 using System.Net.Http.Headers;
 using System.Net.Mail;
 using System.Text.Json;
+using System;
+using System.Diagnostics;
 using AutoMapper;
 using Core.Interface;
 using Core.Models.Account;
 using Core.SMTP;
 using Domain.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace Core.Services;
@@ -119,5 +122,59 @@ public class AccountService(IJwtTokenService tokenService,
 
         if (user != null)
             await userManager.ResetPasswordAsync(user, model.Token, model.Password);
+    }
+
+    public async Task<UserEntity> GetUser(){
+        var userId = await authservice.GetuserId();
+        var user = await userManager.Users
+            .Include(u => u.UserRoles!)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
+            throw new Exception("User not found");
+
+        return user;
+    }
+
+    public async Task<FullNameModel> GetFullName(){
+        var userId = await authservice.GetuserId();
+        var user = await userManager.Users
+            .Include(u => u.UserRoles!)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
+            throw new Exception("User not found");
+
+        return new FullNameModel {
+            FirstName = user.FirstName,
+            LastName = user.LastName
+        };
+    }
+
+    public async Task EditProfile(ProfileEditModel model)
+    {
+        var userId = await authservice.GetuserId();
+        var user = await userManager.Users
+            .Include(u => u.UserRoles!)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
+            throw new Exception("User not found");
+
+        user.FirstName = model.FirstName.Trim();
+        user.LastName = model.LastName.Trim();
+        user.Email = model.Email.Trim();
+
+        if (model.Image != null)
+        {
+            if (!string.IsNullOrEmpty(user.Image))
+            {
+                imageService.DeleteImageAsync(user.Image);
+            }
+
+            user.Image = await imageService.SaveImageAsync(model.Image);
+        }
+
+        await userManager.UpdateAsync(user);
     }
 }

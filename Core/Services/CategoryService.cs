@@ -85,8 +85,11 @@ namespace Core.Services
 
             existing = mapper.Map(model, existing);
 
+			Console.WriteLine("HELLO??????" + model.Image);
+
             if (model.Image != null)
             {
+				Console.WriteLine("Switching Image...");
                 await imageService.DeleteImageAsync(existing.Image);
                 existing.Image = await imageService.SaveImageAsync(model.Image);
             }

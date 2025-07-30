@@ -19,7 +19,7 @@ namespace Core.Services
 {
     public class ProductService(RestucodeDBContext context, IMapper mapper, IImageService imageService) : IProductService
     {
-        public async Task<PagedResult<ProductItemViewModel>> List(string? search, int page = 1, int pageSize = 5)
+        public async Task<PagedResult<ProductItemViewModel>> List(ProductSearchModel filter)
         {
             var query = context.Products
                 .Include(p => p.ProductVariants)
@@ -34,22 +34,26 @@ namespace Core.Services
                 .AsQueryable();
 
 
-            if (!string.IsNullOrEmpty(search))
-                query = query.Where(p => p.ProductVariants.Where(v => v.Name.Contains(search)).Count() >= 1);
+            if (!string.IsNullOrEmpty(filter.Name))
+                query = query.Where(p => p.ProductVariants.Where(v => v.Name.ToLower().Contains(filter.Name.ToLower())).Count() >= 1);
+
+            if(filter.CategoryId != null){
+                query = query.Where(p => p.ProductVariants.Where(v => v.CategoryId == filter.CategoryId).Count() >= 1);
+            }
 
             var totalItems = await query.CountAsync();
 
             var items = await mapper.ProjectTo<ProductItemViewModel>(query)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((filter.Page - 1) * filter.PageSize)
+                .Take(filter.PageSize)
                 .ToListAsync();
 
             return new PagedResult<ProductItemViewModel>
             {
                 Items = items,
                 TotalItems = totalItems,
-                Page = page,
-                PageSize = pageSize
+                Page = filter.Page,
+                PageSize = filter.PageSize
             };
         }
 

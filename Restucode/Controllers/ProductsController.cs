@@ -1,5 +1,6 @@
 ﻿using Core.Interface;
 using Core.Models.Product;
+using Core.Models.General;
 using Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -11,11 +12,11 @@ namespace Restucode.Controllers
     public class ProductsController(IProductService productService) : ControllerBase
     {
         [HttpGet("list")]
-        public async Task<IActionResult> List([FromQuery] string? search, int page = 1, int pageSize = 5)
+        public async Task<ActionResult<PagedResult<ProductItemViewModel>>> List([FromQuery] ProductSearchModel filter)
         {
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-            var model = await productService.List(search, page, pageSize);
+            var model = await productService.List(filter);
             stopWatch.Stop();
             // Get the elapsed time as a TimeSpan value.
             TimeSpan ts = stopWatch.Elapsed;

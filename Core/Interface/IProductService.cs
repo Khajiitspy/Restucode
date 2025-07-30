@@ -12,7 +12,7 @@ namespace Core.Interface
 {
     public interface IProductService
     {
-        public Task<PagedResult<ProductItemViewModel>> List(string? search, int page = 1, int pageSize = 5);
+        public Task<PagedResult<ProductItemViewModel>> List(ProductSearchModel filter);
 
         public Task<ProductDetailsViewModel> Details(long id);
         public Task<ProductVariantEdit> GetVariant(long id);
